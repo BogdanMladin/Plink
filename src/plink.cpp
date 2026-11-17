@@ -1,3 +1,4 @@
+#include <cstring>
 #include <cassert>
 #include <stdio.h>
 #include <windows.h>
@@ -97,7 +98,7 @@ Exit:
     return ok;
 }
 
-bool DDERetrieve(char *server, char *topic, char *command)
+bool DDERetrieve(char *server, char *topic, char *command, char *target, int targetSize)
 {
     DWORD inst = 0;
     HSZ hszServer = nullptr, hszTopic = nullptr;
@@ -161,7 +162,10 @@ bool DDERetrieve(char *server, char *topic, char *command)
         data = DdeAccessData(answer,   // [in]            HDDEDATA hData,
                              &dataSize // [out, optional] LPDWORD  pcbDataSize
         );
-        // TODO: pull the data and return it
+
+        strcpy_s(target, targetSize, (char *)data);
+
+        DdeUnaccessData(answer);
 
         DdeFreeDataHandle(answer);
         ok = true;
@@ -170,6 +174,8 @@ bool DDERetrieve(char *server, char *topic, char *command)
         int result;
         result = DdeGetLastError(inst);
         int omg = result;
+        //TODO: Do something more meaningful here
+        assert(false);
     }
 
 Exit:
@@ -190,13 +196,23 @@ Exit:
     return ok;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+        const int locationStringSize = 100000;
+        char locationString[locationStringSize];
+    if(strcmp(argv[1], "add") == 0){
+
+        DDERetrieve("SUMATRA", "control", "[GetFileState()]", locationString, locationStringSize);
+
+    }
+    int a = 0;
+    int b = a;
+
+    
     // char *command =
     //     "[Open(\"C:\\Users\\bogda\\Downloads\\01_2IRR00_Setting_Up_The_Tools.pdf\",0,1,0)]";
     // printf("%s", command);
 
     // DDEExecute("SUMATRA", "control", command);
 
-    DDERetrieve("SUMATRA" , "control" , "[GetFileState()]");
 }
